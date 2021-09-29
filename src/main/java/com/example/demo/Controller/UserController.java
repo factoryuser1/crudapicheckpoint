@@ -129,7 +129,7 @@ public class UserController {
         Map<String, Object> jsonResponse = new HashMap<>();
         Optional<User> user = userTable.findByEmail(userReceived.getEmail());
 
-//        user.ifPresent((e) -> {
+//        user.ifPresent((e) -> { //the e is the user returned object
 //        });
 
         if (user.isPresent()) {

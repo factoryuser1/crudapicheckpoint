@@ -17,8 +17,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.IsEqual.equalTo;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
@@ -157,7 +156,7 @@ public class UserControllerTest {
     @Transactional
     @Rollback
     public void testPatchUserEmailById() throws Exception {
-        //[3]setup: for creating/posting a [User], you will need to create test JSON data object and pass it as body
+        //[4]setup: for creating/posting a [User], you will need to create test JSON data object and pass it as body
         // with the request. The object returned [User] will be a single object of the same posted User.
 
         //setup the JSON to send with the request, either through an Object mapper or a json string.
@@ -192,14 +191,14 @@ public class UserControllerTest {
 
         perform.andExpect(status().isOk())
                 .andExpect(content().json(jsonExpected))
-                .andExpect((jsonPath("$.email", is(user1.getEmail()))))
-                .andExpect((jsonPath("$.id").exists()));
+                .andExpect((jsonPath("$.id").exists()))
+                .andExpect((jsonPath("$.email", is(user1.getEmail()))));
     }
     @Test
     @Transactional
     @Rollback
     public void testPatchUserEmailAndPasswordById() throws Exception {
-        //[3]setup: for creating/posting a [User], you will need to create test JSON data object and pass it as body
+        //[5]setup: for creating/posting a [User], you will need to create test JSON data object and pass it as body
         // with the request. The object returned [User] will be a single object of the same posted User.
 
         //setup the JSON to send with the request, either through an Object mapper or a json string.
@@ -230,12 +229,65 @@ public class UserControllerTest {
 
         perform.andExpect(status().isOk())
                 .andExpect(content().json(jsonExpected))
-                .andExpect((jsonPath("$.email", is(user1.getEmail()))))
                 .andExpect((jsonPath("$.id").exists()))
+                .andExpect((jsonPath("$.email", is(user1.getEmail()))))
                 .andExpect((jsonPath("$.password", is(user1.getPassword()))));
     }
 
+    @Test
+    @Transactional
+    @Rollback
+    public void testDeleteUserById() throws Exception {
+        //[6] the delete request is very simple, just pass it the id to delete, get the count before, execute the request,
+        // get the count after, assert that the row is deleted by calling the UserRepository custom JPA method or other any other method
 
+        MockHttpServletRequestBuilder request = delete("/user/%d".formatted(user3.getId()));
+        Long countBefore = repository.count();
+
+        ResultActions perform = mvc.perform(request);
+        Long countAfter = repository.count();
+
+        perform.andExpect(status().isOk());
+
+        assertFalse(repository.findByEmail(user3.getEmail()).isPresent());
+        assertTrue((countBefore-1) == countAfter);
+    }
+
+    @Test
+    @Transactional
+    @Rollback
+    public void testPostAuthenticateUser() throws Exception {
+        //[7]setup: for updating/patching a [User], you will need to create test JSON data object and pass it as body
+        // with the request. The object returned [User] will be a single object of the same posted User.
+
+        //setup the JSON to send with the request, either through an Object mapper or a json string.
+
+        var jsonString = mapper.writeValueAsString(user4);
+
+        //set the JSON to check the response against
+        // user4.setEmail("Susan@email.com");user4.setPassword("010203");
+        var jsonExpected = """
+                {
+                    "authenticated": "true",
+                    "user": {
+                        "id": %d,
+                        "email": "Susan@email.com"
+                     }
+                }
+                """.formatted(user4.getId());
+
+        //setup the request object for a post/patch(both are the same)
+        MockHttpServletRequestBuilder request = patch("/user/authenticate/")
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON)
+                .content(jsonString);
+
+        //execute the request
+        ResultActions perform = this.mvc.perform(request);
+//        perform.andExpect((jsonPath("$.authenticated", is("true"))));
+//        perform.andExpect(content().json(jsonExpected));
+
+    }
 }
 
 
