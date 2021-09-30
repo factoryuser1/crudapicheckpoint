@@ -15,6 +15,7 @@ import java.util.Map;
 import java.util.Optional;
 
 @RestController
+@RequestMapping("/user")
 public class UserController {
 
     //inject the User Repository using constructor injection
@@ -24,9 +25,18 @@ public class UserController {
         this.userTable = userTable;
     }
 
+    /*
+    There are different ways to refer to the methods inside controllers. You'll hear them called:
+     - "routes"
+     - "endpoints"
+     - "request mappings"
+      - "route mappings"
+    Those are all effectively synonymous.
+     */
+
     //1- Get all (List): "/user".  JPA method: .findAll [returns a list of users from the DB]
     // takes no args in method
-    @GetMapping("/user")
+    @GetMapping("")
     public Iterable<User> findAllUsers() {
         return userTable.findAll();
     }
@@ -41,7 +51,7 @@ public class UserController {
         ***OR***
         By using the Entity type as a return type and amend the .get() method at the end
      */
-    @GetMapping("/user/{id}")
+    @GetMapping("/{id}")
     public User getUserById(@PathVariable Long id) {
         //Changing the JSON views within the methods. Return a MappingJacksonValue object
         User user = userTable.findById(id).get();
@@ -58,7 +68,7 @@ public class UserController {
 
     //3- Post/create a new user (Create) "/user".  JPA method: .save [creates a new user]
     // takes @RequestBody param and Entity object
-    @PostMapping("/user")
+    @PostMapping("")
     @JsonView(Views.SecretView.class) // to restrict what you send back with the JSON response for the password
     public User createNewUser(@RequestBody User user) {
         return userTable.save(user);
@@ -66,7 +76,7 @@ public class UserController {
 
     //4- Patch/update a user (Update) "/user/{id}".  JPA method: .save [updates attributes of user]
     // takes PathParam to look up Entity and @RequestBody to
-    @PatchMapping("/user/{id}")
+    @PatchMapping("/{id}")
     @JsonView(Views.SecretView.class)
     public User updateUserInfo(@PathVariable Long id, @RequestBody Map<String, Object> updatedUser) {
         //first step in a patch, get the user record to update
@@ -95,7 +105,7 @@ public class UserController {
     }
 
     //4- Patch/update a user (Update) "/user/{id}".  JPA method: .save [updates attributes of user]
-    @PatchMapping("/user/dto/{id}")
+    @PatchMapping("/dto/{id}")
 //    @JsonView(Views.SecretView.class)
     public User updateUserInfoUsingDTO(@PathVariable Long id, @RequestBody UserDto updatedUser) {
         //first step in a patch, get the user record to update
@@ -111,7 +121,7 @@ public class UserController {
     //5- Delete a user (Delete) "/user/{id}".  JPA method: .deleteById [delete a user row]
     // takes a @Pathvariable id to get the user
 
-    @DeleteMapping("/user/{id}")
+    @DeleteMapping("/{id}")
     public Map<String, String> deleteUserById(@PathVariable Long id) {
         Map<String, String> deleteResult = new HashMap<>();
 
@@ -124,7 +134,7 @@ public class UserController {
         return deleteResult;
     }
 
-    @PostMapping("/user/authenticate")
+    @PostMapping("/authenticate")
     @JsonView(Views.SecretView.class)
     public Map<String, Object> authenticateUser(@RequestBody UserDto userReceived) {
         Map<String, Object> jsonResponse = new HashMap<>();

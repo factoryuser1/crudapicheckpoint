@@ -27,7 +27,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 public class UserControllerTest {
 
     //when you run this test, comment out the @JsonProperty(access = JsonProperty.Access.WRITE_ONLY) for password in User entity
-    //these tests are execting passwords in the response.  Next refactor is to fix these tests to NOT expect passwords in the response.
+    //these tests are expecting passwords in the response.  Next refactor is to fix these tests to NOT expect passwords in the response.
 
     @Autowired
     private MockMvc mvc;
@@ -46,9 +46,7 @@ public class UserControllerTest {
     User user5 = new User();
     User user6 = new User();
 
-    @BeforeEach
-    @Transactional
-    @Rollback
+    @BeforeEach@Transactional@Rollback
     public void setUp() {
 //        user1.setId(1L);user1.setEmail("ammar@email.com");user1.setPassword("112233");
 //        user2.setId(2L);user2.setEmail("alex@email.com");user2.setPassword("445566");
@@ -78,13 +76,18 @@ public class UserControllerTest {
        //[1]setup: for lists, you will need to create test data in DB
        //create user and save it to DB as test data in the beforeEach
        //Create the request object and the route
-       MockHttpServletRequestBuilder request = get("/user");
+       MockHttpServletRequestBuilder request = get("/user")
+//               .header("session", "1512")
+               .contentType(MediaType.APPLICATION_JSON)
+               .accept(MediaType.APPLICATION_JSON);
 
-       //execute
+       //execute or perform the request
        //Option+Command+V to extract a variable for a Type
        ResultActions perform = this.mvc.perform(request);
 
        perform.andExpect(status().isOk())
+               .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+//               .andExpect(header().string("session", "1512"))
                .andExpect(jsonPath("$[0].id", equalTo(user1.getId().intValue())))
                .andExpect(jsonPath("$[0].email", is(user1.getEmail())))
                .andExpect(jsonPath("$[0].password", is(user1.getPassword())))
@@ -113,7 +116,7 @@ public class UserControllerTest {
 
         //assert
         perform.andExpect(status().isOk())
-//                .andExpect(jsonPath("$.id", equalTo(user3.getId().intValue())))
+                .andExpect(jsonPath("$.id", equalTo(user4.getId().intValue())))
                 .andExpect(jsonPath("$.id").exists())
                 .andExpect((jsonPath("$.email", is(user4.getEmail()))))
                 .andExpect((jsonPath("$.password", is(user4.getPassword())))); //doesNotExist better.
