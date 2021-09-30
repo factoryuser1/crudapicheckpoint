@@ -1,6 +1,6 @@
-package com.example.demo.Model;
+package com.example.demo.model;
 
-import com.example.demo.View.Views;
+import com.example.demo.view.Views;
 import com.fasterxml.jackson.annotation.*;
 
 import javax.persistence.*;

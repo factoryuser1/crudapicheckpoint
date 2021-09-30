@@ -1,9 +1,10 @@
-package com.example.demo.Controller;
+package com.example.demo.controller;
 
-import com.example.demo.DTO.UserDto;
-import com.example.demo.Model.User;
-import com.example.demo.Repository.UserRepository;
-import com.example.demo.View.Views;
+import com.example.demo.dto.UserAuthenticationDto;
+import com.example.demo.dto.UserDto;
+import com.example.demo.model.User;
+import com.example.demo.repository.UserRepository;
+import com.example.demo.view.Views;
 import com.fasterxml.jackson.annotation.JsonView;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.http.converter.json.MappingJacksonValue;
@@ -127,18 +128,21 @@ public class UserController {
     @JsonView(Views.SecretView.class)
     public Map<String, Object> authenticateUser(@RequestBody UserDto userReceived) {
         Map<String, Object> jsonResponse = new HashMap<>();
+        UserAuthenticationDto authenticationDto = new UserAuthenticationDto(); //come back to refactor Egor orElseThrow
         Optional<User> user = userTable.findByEmail(userReceived.getEmail());
+        jsonResponse.put("authenticated", authenticationDto.isAuthenticated());
 
 //        user.ifPresent((e) -> { //the e is the user returned object
 //        });
 
         if (user.isPresent()) {
             if (user.get().getPassword().equals(userReceived.getPassword())) {
-                jsonResponse.put("authenticated", "true");
+                authenticationDto.setAuthenticated(true);
+                jsonResponse.put("authenticated", authenticationDto.isAuthenticated());
                 jsonResponse.put("user", user);
 
             } else {
-                jsonResponse.put("authenticated", "false");
+                jsonResponse.put("authenticated", authenticationDto.isAuthenticated());
             }
         }
         return jsonResponse;
