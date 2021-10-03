@@ -46,7 +46,9 @@ public class UserControllerTest {
     User user5 = new User();
     User user6 = new User();
 
-    @BeforeEach@Transactional@Rollback
+    @BeforeEach
+    @Transactional
+    @Rollback
     public void setUp() {
 //        user1.setId(1L);user1.setEmail("ammar@email.com");user1.setPassword("112233");
 //        user2.setId(2L);user2.setEmail("alex@email.com");user2.setPassword("445566");
