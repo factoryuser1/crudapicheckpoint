@@ -1,0 +1,21 @@
+class MyControllerTest {
+
+  @Test
+  public void testRawBody() throws Exception {
+      String json = getJSON("/data.json");
+
+      MockHttpServletRequestBuilder request = post("/jr/string-example")
+              .contentType(MediaType.APPLICATION_JSON)
+              .content(json);
+
+      this.mvc.perform(request)
+              .andExpect(status().isOk())
+              .andExpect(content().string(json));
+  }
+
+  private String getJSON(String path) throws Exception {
+      URL url = this.getClass().getResource(path);
+      return new String(Files.readAllBytes(Paths.get(url.getFile())));
+  }
+
+}

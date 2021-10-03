@@ -14,12 +14,18 @@ public class User {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @JsonView(Views.SecretView.class)
     private Long id;
-
+    //don't send it back with json response
 //    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     private String password;
 
+    //rename it on JSON when it is serialized to JSON or on the getter
     @JsonView(Views.SecretView.class)
+    @JsonProperty("email")
     private String email;
+
+    @JsonView(Views.DetailedView.class)
+    @JsonFormat(pattern = "yyy-MM-dd hh:ss", timezone = "GMT -5")
+    private Date dateOfBirth;
 
     @JsonView(Views.SecretView.class)
     private Long age;
@@ -30,10 +36,6 @@ public class User {
     private String lastName;
     @JsonView(Views.ListView.class)
     private String phoneNumber;
-
-    @JsonView(Views.DetailedView.class)
-    @JsonFormat(pattern = "yyy-MM-dd hh:ss", timezone = "GMT -5")
-    private Date dateOfBirth;
 
     @JsonView(Views.DetailedView.class)
     private String streetAddress;
@@ -48,6 +50,7 @@ public class User {
         return id;
     }
 
+//    @JsonIgnore // on the getter to exclude sensitive data
     public String getPassword() {
         return password;
     }

@@ -10,9 +10,7 @@ import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.http.converter.json.MappingJacksonValue;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 
 @RestController
 @RequestMapping("/user")
@@ -24,6 +22,8 @@ public class UserController {
     public UserController(UserRepository userTable) {
         this.userTable = userTable;
     }
+
+//    private List<User> usersList = Collections.emptyList();
 
     /*
     There are different ways to refer to the methods inside controllers. You'll hear them called:
@@ -78,7 +78,8 @@ public class UserController {
     // takes PathParam to look up Entity and @RequestBody to
     @PatchMapping("/{id}")
     @JsonView(Views.SecretView.class)
-    public User updateUserInfo(@PathVariable Long id, @RequestBody Map<String, Object> updatedUser) {
+    public User updateUserInfo(@PathVariable Long id,
+                               @RequestBody Map<String, Object> updatedUser) {
         //first step in a patch, get the user record to update
         User currentUser = userTable.findById(id).get();
 

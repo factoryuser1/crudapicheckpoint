@@ -15,7 +15,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder;
 import org.springframework.transaction.annotation.Transactional;
-
+import com.example.demo.controller.*;
 import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.IsEqual.equalTo;
 import static org.junit.jupiter.api.Assertions.*;
@@ -28,6 +28,10 @@ public class UserControllerTest {
 
     //when you run this test, comment out the @JsonProperty(access = JsonProperty.Access.WRITE_ONLY) for password in User entity
     //these tests are expecting passwords in the response.  Next refactor is to fix these tests to NOT expect passwords in the response.
+    // and comment the @JsonIgnore // on the getter to exclude sensitive data
+    //    public String getPassword() {
+    //        return password;
+    //    }
 
     @Autowired
     private MockMvc mvc;

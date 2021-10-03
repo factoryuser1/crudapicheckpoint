@@ -1,5 +1,7 @@
 package com.example.demo.misc;
 
+import com.example.demo.dto.Person;
+import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Map;
@@ -73,10 +75,14 @@ public class RequestResponse {
                 taskInfo.getSortBy(), taskInfo.getOwner());
     }
 
-    //Accessing a Cookie
+    //Accessing a Cookie/Header
     @GetMapping("/cookie")
     public String getCookie(@CookieValue(name = "foo") String cookie) {
         return cookie;
+    }
+    @GetMapping("/header")
+    public String getHeader(@RequestHeader String host) {
+        return host;
     }
 
     /* #5 - Access path variables data from a route, a map, or an object
@@ -95,15 +101,63 @@ public class RequestResponse {
     public String getCommentsForTask(@PathVariable int taskId, @PathVariable int commentId) {
         return String.format("taskId is %d; commentId is %d", taskId, commentId);
     }
+
     //as a map
-    @GetMapping("/test/tasks/{taskId}/comments/{commentId}")
-    public String getCommentsAsAMap(@PathVariable Map pathVariables) {
+    @GetMapping("/test1/tasks/{taskId}/comments/{commentId}")
+    public String getCommentsAsAMap(@PathVariable Map<Integer, Integer> pathVariables) {
         return pathVariables.toString(); // {taskId=46, commentId=35}
     }
 
-    @GetMapping("/test/tasks/{taskId}/comments/{commentId}")
+    @GetMapping("/test2/tasks/{taskId}/comments/{commentId}")
     public String getCommentsForTask(TaskInfo ids) {
         return String.format("taskId is %d; commentId is %s", ids.getTaskId(), ids.getCommentId());
+    }
+
+    /* #6 - Access Form Data from a route, a map, or an object
+     */
+
+    //Accessing the request body as a String is the simplest (and least useful)
+    //way to get access to the body
+    @PostMapping("/string-example")
+    public String getRawString(@RequestBody String rawBody) {
+        return rawBody;
+    }
+    //Accessing the request body as a Map is a slightly
+    //more useful way to process form parameters is to turn them into a Map.
+    //This can be useful if the form params that come in are unpredictable.
+    @PostMapping(path = "/people1", consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE)
+    public String showFormData(@RequestParam Map<String, String> body) {
+        return body.toString();  // {first_name=Dwayne, last_name=Johnson}
+    }
+
+    //Accessing the request body as an Object
+    //you can also indicate to Spring that you'd like access to the form data as a typed object,
+    @PostMapping(path = "/people2", consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE)
+    public String showFormDataObject(@RequestBody Person person) {
+        return person.toString();
+    }
+
+    /*Getting all 3 in one method (QS, PV and Form Data-body)
+    RequestParam grabs everything from both the querystring and the form body.
+        POST /posts/34/comments?notify=email HTTP/1.1
+        Host: example.com
+        Accept: application/json
+        Content-Type: application/x-www-form-urlencoded
+        content=Firsties!&author=Dwayne
+     */
+    @PostMapping("/posts/{postId}/comments?filter=active")
+    public String createComment(@PathVariable("postId") int postId,
+                                @RequestHeader("accept") String accept,
+                                @RequestParam Map<String, String> params) {
+        return String.format(
+                "postId:%d notify:%s content:%s author:%s header:%s and filter:%s",
+                postId,
+                params.get("notify"),
+                params.get("content"),
+                params.get("author"),
+                params.get("filter"),
+                accept
+        );
     }
 
 }
